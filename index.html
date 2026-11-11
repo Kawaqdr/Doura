@@ -171,8 +171,8 @@ for(let i=0;i<26;i++){
 
 /* ================= biomes ================= */
 const BIOMES=[
- {key:'mountain',name:'🏔️ পাহাড়',sub:'ঠান্ডা বাতাস, পাথরের পথ',ground:0x8b8f7a,path:0xa89a80,
-  fog:0xcfe3f5,top:0x2f7fd0,bot:0xdcefff,hemiG:0x55604a,far:0x8fa4c4,sun:0xfff2d0},
+ {key:'mountain',name:'🏔️ পাহাড়',sub:'ঠান্ডা বাতাস, পাথরের পথ',ground:0x53635f,path:0x78644e,
+  fog:0xb7d4e7,top:0x1c5b91,bot:0xf0d9b5,hemiG:0x3d5546,far:0x647e9c,sun:0xffd69a},
  {key:'forest',name:'🌲 জঙ্গল',sub:'ঘন গাছ, সবুজ ছায়া',ground:0x3f6b32,path:0x7a5a38,
   fog:0xb9d6a8,top:0x3f8fb0,bot:0xd8ecc4,hemiG:0x2f4a22,far:0x5f7f6a,sun:0xffeec2},
  {key:'river',name:'🌊 নদী',sub:'কাঠের সেতু পেরিয়ে জলের ধারে',ground:0x5f8f6a,path:0x9c6b3f,
@@ -197,7 +197,7 @@ const G={
 };
 const M={
  ground:new THREE.MeshLambertMaterial({color:0x8b8f7a}),
- path:new THREE.MeshLambertMaterial({color:0xa89a80}),
+ path:new THREE.MeshPhongMaterial({color:0x78644e,shininess:24,specular:0x263d4a}),
  bed:new THREE.MeshLambertMaterial({color:0x14506e}),
  water:new THREE.MeshPhongMaterial({color:0x2b8fc4,transparent:true,opacity:.8,shininess:110,specular:0x9fe8ff}),
  trunk:new THREE.MeshLambertMaterial({color:0x5b3d24,flatShading:true}),
@@ -447,7 +447,8 @@ function setWeather(mode){
  weather=mode;if(rainGain&&actx)rainGain.gain.setTargetAtTime(mode==='rain'&&soundOn ? .18 : 0,actx.currentTime,1.1);
  sun.intensity=mode==='rain'?.62:mode==='snow'?.9:1.45;hemi.intensity=mode==='rain'?.7:.95;rainFx.visible=mode==='rain';snowFx.visible=mode==='snow';
  $('weatherLabel').textContent=mode==='rain'?'🌧  RAINFALL':mode==='snow'?'❄  SNOWFALL':'☀  CLEAR WEATHER';
- if(mode==='rain')toast('বৃষ্টি শুরু হয়েছে — সাবধানে!');
+ if(mode==='rain'){toast('বৃষ্টি শুরু হয়েছে — সাবধানে!');scene.fog.near=24;scene.fog.far=118;}
+ else if(mode==='snow'){scene.fog.near=30;scene.fog.far=145;}else{scene.fog.near=45;scene.fog.far=185;}
  if(mode==='snow')toast('তুষারপাত — পথ পিচ্ছিল!');
 }
 function seedWeather(){
@@ -586,7 +587,7 @@ function update(dt){
   /* colour blending */
   const k=1-Math.pow(.02,dt);
   for(const key in cur) cur[key].lerp(tgt[key],k);
-  M.ground.color.copy(cur.ground); M.path.color.copy(cur.path);
+  M.ground.color.copy(cur.ground);M.path.color.copy(cur.path);M.path.shininess=weather==='rain'?105:24;M.path.specular.setHex(weather==='rain'?0x8db8cc:0x263d4a);
   scene.fog.color.copy(cur.fog); skyU.top.value.copy(cur.top); skyU.bot.value.copy(cur.bot);
   hemi.groundColor.copy(cur.hemiG); farMat.color.copy(cur.far); sun.color.copy(cur.sun);
 
