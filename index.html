@@ -380,7 +380,7 @@ function attachRunner(gltf){
  for(const clip of gltf.animations||[]){
   const key=clip.name.toLowerCase().replace(/[^a-z]/g,'');runnerActions[key]=runnerMixer.clipAction(clip);
  }
- setRunnerAction('idle',0);
+ setRunnerAction(state==='play'?'run':'idle',0);
  runnerModelRoot.userData.loaded=true;body.visible=false;
 }
 loadModel(GLB.runner).then(attachRunner).catch(()=>loadModel(GLB.runnerFallback).then(gltf=>{
