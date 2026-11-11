@@ -444,8 +444,8 @@ function wildlife(kind,x,z,scale){
  const cream=new THREE.MeshStandardMaterial({color:0xe7d2ad,roughness:1});
  const dark=new THREE.MeshStandardMaterial({color:0x211b19,roughness:.8});
  const sphere=new THREE.SphereGeometry(1,16,12);
- const part=(geo,mat,px,py,pz,sx,sy,sz)=>mk(geo,mat,px,py,pz,sx,sy,sz,root);
  const fallback=new THREE.Group();root.add(fallback);
+ const part=(geo,mat,px,py,pz,sx,sy,sz)=>mk(geo,mat,px,py,pz,sx,sy,sz,fallback);
  part(sphere,coat,0,1.18,0,.68,.42,.32);
  part(sphere,coat,.5,1.5,0,.26,.3,.24);
  part(sphere,dark,.68,1.45,.13,.07,.06,.06);
