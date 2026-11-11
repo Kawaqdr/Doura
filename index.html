@@ -444,7 +444,8 @@ const snowFx=new THREE.Points(snowGeo,new THREE.PointsMaterial({color:0xf3fbff,s
 scene.add(snowFx);snowFx.frustumCulled=false;snowFx.visible=false;
 let weather='clear',nextWeatherAt=190;
 function setWeather(mode){
- weather=mode;rainFx.visible=mode==='rain';snowFx.visible=mode==='snow';
+ weather=mode;if(rainGain&&actx)rainGain.gain.setTargetAtTime(mode==='rain'&&soundOn ? .18 : 0,actx.currentTime,1.1);
+ sun.intensity=mode==='rain'?.62:mode==='snow'?.9:1.45;hemi.intensity=mode==='rain'?.7:.95;rainFx.visible=mode==='rain';snowFx.visible=mode==='snow';
  $('weatherLabel').textContent=mode==='rain'?'🌧  RAINFALL':mode==='snow'?'❄  SNOWFALL':'☀  CLEAR WEATHER';
  if(mode==='rain')toast('বৃষ্টি শুরু হয়েছে — সাবধানে!');
  if(mode==='snow')toast('তুষারপাত — পথ পিচ্ছিল!');
@@ -457,7 +458,23 @@ function seedWeather(){
 seedWeather();
 
 /* ================= audio ================= */
-let actx=null,soundOn=true;
+let actx=null,soundOn=true,ambienceMaster=null,rainGain=null,ambienceReady=false;
+function startAmbience(){
+ try{
+  actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  if(ambienceReady){if(actx.state==='suspended')actx.resume();return;}
+  ambienceReady=true;ambienceMaster=actx.createGain();ambienceMaster.gain.value=soundOn ? .34 : 0;ambienceMaster.connect(actx.destination);
+  const wind=actx.createBiquadFilter();wind.type='lowpass';wind.frequency.value=380;
+  const windGain=actx.createGain();windGain.gain.value=.13;wind.connect(windGain);windGain.connect(ambienceMaster);
+  const buffer=actx.createBuffer(1,actx.sampleRate*3,actx.sampleRate),data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*.32;
+  const windNoise=actx.createBufferSource();windNoise.buffer=buffer;windNoise.loop=true;windNoise.connect(wind);windNoise.start();
+  const rainFilter=actx.createBiquadFilter();rainFilter.type='highpass';rainFilter.frequency.value=650;
+  rainGain=actx.createGain();rainGain.gain.value=0;
+  const rainNoise=actx.createBufferSource();rainNoise.buffer=buffer;rainNoise.loop=true;rainNoise.connect(rainFilter);rainFilter.connect(rainGain);rainGain.connect(ambienceMaster);rainNoise.start();
+  const drone=actx.createOscillator(),droneGain=actx.createGain();drone.type='sine';drone.frequency.value=58;droneGain.gain.value=.018;drone.connect(droneGain);droneGain.connect(ambienceMaster);drone.start();
+ }catch(e){}
+}
 function beep(f,d,type,vol){ if(!soundOn)return; try{
   actx=actx||new (window.AudioContext||window.webkitAudioContext)();
   const o=actx.createOscillator(),g=actx.createGain();
@@ -467,7 +484,7 @@ function beep(f,d,type,vol){ if(!soundOn)return; try{
   o.stop(actx.currentTime+d);}catch(e){}
 }
 function setSound(on){
-  soundOn=on;
+  soundOn=on;if(ambienceMaster&&actx)ambienceMaster.gain.setTargetAtTime(on ? .34 : 0,actx.currentTime,.12);
   $('cSound').textContent=on?'🔊':'🔇';
   $('btnSound').textContent=on?'🔊 সাউন্ড: চালু':'🔇 সাউন্ড: বন্ধ';
 }
@@ -484,6 +501,7 @@ function toast(t){ const e=$('toast'); e.textContent=t; e.style.opacity=1;
   clearTimeout(e._t); e._t=setTimeout(()=>e.style.opacity=0,900); }
 
 function start(){
+  startAmbience();if(actx&&actx.state==='suspended')actx.resume();
   state='play'; lane=1; px=0; py=0; vy=0; sliding=0; speed=diff.start;
   gemCount=0; lives=3; invuln=0; nextBiome=420;
   resetWorld();
