@@ -527,8 +527,8 @@ const forestBushGeo=new THREE.IcosahedronGeometry(1,1);
 const forestLeafMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
 forestLeafMat.onBeforeCompile=shader=>{
  shader.uniforms.uWindTime={value:0};forestLeafMat.userData.windShader=shader;
- shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\\nuniform float uWindTime;');
- shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\\ntransformed.x += sin(uWindTime + position.y*1.7 + instanceMatrix[3].x*.35)*.035*max(position.y,0.0);');
+ shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uWindTime;');
+ shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.x += sin(uWindTime + position.y*1.7 + instanceMatrix[3].x*.35)*.035*max(position.y,0.0);');
 };
 function addForestSet(s){
  const count=28,dummy=new THREE.Object3D(),trunks=new THREE.InstancedMesh(forestTrunkGeo,M.trunk,count);
