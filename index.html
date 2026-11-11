@@ -280,7 +280,7 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(600,24,14),new THREE.ShaderMat
 scene.add(sky);
 
 /* distant mountain silhouettes (fog-independent) */
-const farMat=new THREE.MeshLambertMaterial({color:0x8fa4c4,flatShading:true,fog:false});
+const farMat=new THREE.MeshLambertMaterial({color:0x8fa4c4,fog:false});
 const farGroup=new THREE.Group(); scene.add(farGroup);
 for(let i=0;i<26;i++){
   const a=i/26*Math.PI*2, r=rnd(230,330), h=rnd(45,120);
@@ -331,9 +331,9 @@ const M={
  pine:new THREE.MeshStandardMaterial({color:0x244d37,roughness:1}),
  rock:new THREE.MeshStandardMaterial({color:0x777d7b,roughness:.96}),
  snow:new THREE.MeshStandardMaterial({color:0xe5e9e8,roughness:.9}),
- wood:new THREE.MeshLambertMaterial({color:0x8a5a30,flatShading:true}),
- darkwood:new THREE.MeshLambertMaterial({color:0x5d3b1e,flatShading:true}),
- reed:new THREE.MeshLambertMaterial({color:0x7fae4a,flatShading:true}),
+ wood:new THREE.MeshLambertMaterial({color:0x8a5a30}),
+ darkwood:new THREE.MeshLambertMaterial({color:0x5d3b1e}),
+ reed:new THREE.MeshLambertMaterial({color:0x7fae4a}),
  gem:new THREE.MeshPhongMaterial({color:0x66e6ff,emissive:0x0d6b80,shininess:120,specular:0xffffff}),
  shadow:new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.28}),
  skin:new THREE.MeshStandardMaterial({color:0xb97850,roughness:.82}),
@@ -835,7 +835,7 @@ function update(dt){
   /* colour blending */
   const k=1-Math.pow(.02,dt);
   for(const key in cur) cur[key].lerp(tgt[key],k);
-  M.ground.color.copy(cur.ground);M.path.color.copy(cur.path);M.path.shininess=weather==='rain'?105:24;M.path.specular.setHex(weather==='rain'?0x8db8cc:0x263d4a);
+  M.ground.color.copy(cur.ground);M.path.color.copy(cur.path);M.path.roughness=weather==='rain'?.3:.92;M.path.metalness=weather==='rain'?.08:0;
   scene.fog.color.copy(cur.fog); skyU.top.value.copy(cur.top); skyU.bot.value.copy(cur.bot);
   hemi.groundColor.copy(cur.hemiG); farMat.color.copy(cur.far); sun.color.copy(cur.sun);
 
