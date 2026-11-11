@@ -300,7 +300,12 @@ for(const k in cur)cur[k].set(BIOMES[0][k]);
 setBiomeTarget(0);
 
 /* ================= shared geo / mat ================= */
+const terrainGeometry=new THREE.PlaneGeometry(120,SEG_LEN,48,12);
+const terrainPos=terrainGeometry.attributes.position;
+for(let i=0;i<terrainPos.count;i++){const x=terrainPos.getX(i),z=terrainPos.getY(i);const edge=Math.min(1,Math.abs(z)/(SEG_LEN*.5));const height=(Math.sin(x*.19+z*.31)*.16+Math.sin(x*.47-z*.22)*.07)*edge;terrainPos.setZ(i,height);}
+terrainGeometry.computeVertexNormals();
 const G={
+ terrain:terrainGeometry,
  box:new THREE.BoxGeometry(1,1,1),
  plane:new THREE.PlaneGeometry(1,1),
  cone:new THREE.ConeGeometry(1,1,14),
@@ -383,12 +388,12 @@ function clearSeg(s){
     if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.map)m.map.dispose();m.dispose();}}
   });
   while(s.content.children.length)s.content.remove(s.content.children[0]);
-  s.obs.length=0;s.gems.length=0;s.animals.length=0;s.dynamic.length=0;
+  s.obs.length=0;s.gems.length=0;s.animals.length=0;s.foliage.length=0;s.dynamic.length=0;
 }
 
 function makeSeg(){
   const g=new THREE.Group();
-  const ground=mk(G.plane,M.ground,0,0,-SEG_LEN/2,120,SEG_LEN,1,g); ground.rotation.x=-Math.PI/2;
+  const ground=mk(G.terrain,M.ground,0,0,-SEG_LEN/2,1,1,1,g); ground.rotation.x=-Math.PI/2;
   const bed=mk(G.plane,M.bed,0,.005,-SEG_LEN/2,70.4,SEG_LEN,1,g); bed.rotation.x=-Math.PI/2; bed.visible=false;
   const path=mk(G.plane,M.path,0,.02,-SEG_LEN/2,10.6,SEG_LEN,1,g); path.rotation.x=-Math.PI/2;
   const waters=[];
@@ -397,25 +402,26 @@ function makeSeg(){
   }
   const content=new THREE.Group(); g.add(content);
   scene.add(g);
-  return {g,content,waters,bed,path,obs:[],gems:[],animals:[],dynamic:[],biome:0};
+  return {g,content,waters,bed,path,obs:[],gems:[],animals:[],foliage:[],dynamic:[],biome:0};
 }
 for(let i=0;i<NSEG;i++) segs.push(makeSeg());
 
 /* --- decorations --- */
 function tree(x,z,scale){
  const t=new THREE.Group();t.position.set(x,0,z);t.scale.setScalar(scale);
- const trunk=mk(new THREE.CylinderGeometry(.12,.28,5.8,12),M.trunk,0,2.9,0,1,1,1,t);
+ const trunk=mk(G.cyl,M.trunk,0,2.9,0,.28,5.8,.28,t);
  trunk.rotation.z=rnd(-.035,.035);
  for(let i=0;i<5;i++){
-  const side=i%2?1:-1,branch=mk(new THREE.CylinderGeometry(.045,.11,1.9,8),M.trunk,side*rnd(.35,.6),2.6+i*.35,0,1,1,1,t);
+  const side=i%2?1:-1,branch=mk(G.cyl,M.trunk,side*rnd(.35,.6),2.6+i*.35,0,.11,1.9,.11,t);
   branch.rotation.z=side*(.65+rnd(-.12,.12));
  }
+ const canopy=new THREE.Group();t.add(canopy);
  const leafMaterials=[M.leafA,M.leafB,M.leafC||M.leafA];
  for(let i=0;i<16;i++){
   const a=i/16*Math.PI*2,r=rnd(.45,1.55),y=rnd(3.5,5.8);
-  mk(G.sphere,leafMaterials[i%leafMaterials.length],Math.cos(a)*r,y,Math.sin(a)*r,rnd(.7,1.15),rnd(.7,1.15),rnd(.7,1.1),t);
+  mk(G.sphere,leafMaterials[i%leafMaterials.length],Math.cos(a)*r,y,Math.sin(a)*r,rnd(.7,1.15),rnd(.7,1.15),rnd(.7,1.1),canopy);
  }
- return t;
+ t.userData.canopy=canopy;t.userData.wind=rnd(0,Math.PI*2);return t;
 }
 function pine(x,z,s){
   const t=new THREE.Group();t.position.set(x,0,z);t.scale.setScalar(s);
@@ -524,11 +530,11 @@ function decorate(s){
     }
     else if(b==='forest'){ const x=side*rnd(9,42); o=Math.random()<.78?tree(x,z,rnd(1.05,2.05)):bush(x,z,rnd(.8,1.8)); }
     else{ const x=side*rnd(36,58); o=Math.random()<.45?tree(x,z,rnd(.7,1.2)):(Math.random()<.5?reeds(x,z):rockDeco(x,z,rnd(.5,1.3))); }
-    s.content.add(o);
+    s.content.add(o);if(b==='forest'&&o&&o.userData&&o.userData.canopy)s.foliage.push(o);
   }
   for(let i=0;i<(b==='forest'?32:14);i++){
     const x=(Math.random()<.5?-1:1)*rnd(5.8,9.5), z=-rnd(0,SEG_LEN);
-    s.content.add(b==='river'?reeds(x,z):(Math.random()<.68?grassPatch(x,z,rnd(.55,1.25)):bush(x,z,rnd(.3,.8))));
+    const undergrowth=b==='river'?reeds(x,z):(Math.random()<.68?grassPatch(x,z,rnd(.55,1.25)):bush(x,z,rnd(.3,.8)));s.content.add(undergrowth);if(b==='forest')s.foliage.push(undergrowth);
   }
   if(b==='river'){
     for(const sx of [-5.4,5.4]){
@@ -820,6 +826,7 @@ function update(dt){
     if(snowPos[p+1]<camera.position.y-6){snowPos[p]=camera.position.x+rnd(-28,28);snowPos[p+1]=camera.position.y+rnd(12,27);snowPos[p+2]=camera.position.z-rnd(8,70);}}
    snowGeo.attributes.position.needsUpdate=true;
   }
+  for(const s of segs)for(const f of s.foliage){const phase=now*.0007+(f.userData.wind||0);if(f.userData.canopy)f.userData.canopy.rotation.z=Math.sin(phase)*.018;if(!f.userData.canopy)f.rotation.z=Math.sin(phase*1.7)*.035;}
   for(const s of segs)for(const a of s.animals){if(a.userData.mixer)a.userData.mixer.update(dt);a.userData.phase+=dt*3.2;a.position.y=Math.abs(Math.sin(a.userData.phase))*.035;for(let j=0;j<a.userData.legs.length;j++)a.userData.legs[j].rotation.x=Math.sin(a.userData.phase+(j%2)*Math.PI)*.28;}
   /* particles */
   for(const p of parts){ if(p.life<=0)continue; p.life-=dt;
