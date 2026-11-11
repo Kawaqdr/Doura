@@ -513,6 +513,52 @@ function addRoadSign(s,x,z,mode){
  s.content.add(sign);s.dynamic.push(sign);
 }
 
+
+// Forest dressing uses InstancedMesh: hundreds of trees/grass clumps in a handful of draw calls.
+const forestTrunkGeo=new THREE.CylinderGeometry(.14,.29,6.2,12);
+const forestBranchGeo=new THREE.CylinderGeometry(.055,.12,2.05,8);
+const forestLeafGeo=new THREE.SphereGeometry(1,16,12);
+const forestGrassGeo=new THREE.BoxGeometry(.055,1,.035);
+const forestBushGeo=new THREE.IcosahedronGeometry(1,1);
+const forestLeafMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+function addForestSet(s){
+ const count=28,dummy=new THREE.Object3D(),trunks=new THREE.InstancedMesh(forestTrunkGeo,M.trunk,count);
+ const branches=new THREE.InstancedMesh(forestBranchGeo,M.trunk,count*2);
+ const leaves=new THREE.InstancedMesh(forestLeafGeo,forestLeafMat,count*5);
+ const grass=new THREE.InstancedMesh(forestGrassGeo,M.leafB,420);
+ const bushes=new THREE.InstancedMesh(forestBushGeo,M.leafA,65);
+ const rocks=new THREE.InstancedMesh(G.rock,M.rock,24);
+ let leafIndex=0,branchIndex=0;
+ for(let i=0;i<count;i++){
+  const side=Math.random()<.5?-1:1,x=side*rnd(10,40),z=-rnd(0,SEG_LEN),scale=rnd(.9,1.8);
+  dummy.position.set(x,3.1*scale,z);dummy.rotation.set(0,rnd(0,6.28),rnd(-.025,.025));dummy.scale.set(scale,scale,scale);dummy.updateMatrix();trunks.setMatrixAt(i,dummy.matrix);
+  for(let j=0;j<2;j++){
+   dummy.position.set(x+(j?1:-1)*.45*scale,2.6*scale+j*.65*scale,z);dummy.rotation.set(0,0,(j?-.62:.62));dummy.scale.set(scale,scale,scale);dummy.updateMatrix();branches.setMatrixAt(branchIndex++,dummy.matrix);
+  }
+  for(let j=0;j<5;j++){
+   const a=j/5*Math.PI*2,r=rnd(.2,.85)*scale;
+   dummy.position.set(x+Math.cos(a)*r,(3.7+j*.34)*scale,z+Math.sin(a)*r);
+   dummy.rotation.set(rnd(-.12,.12),rnd(0,6.28),rnd(-.12,.12));
+   dummy.scale.set(rnd(.8,1.25)*scale,rnd(.72,1.05)*scale,rnd(.8,1.25)*scale);dummy.updateMatrix();
+   leaves.setMatrixAt(leafIndex,dummy.matrix);
+   const tint=new THREE.Color().setHSL(.27+rnd(-.035,.035),.34+rnd(-.08,.08),.25+rnd(-.04,.07));leaves.setColorAt(leafIndex,tint);leafIndex++;
+  }
+ }
+ for(let i=0;i<420;i++){
+  const side=Math.random()<.5?-1:1;dummy.position.set(side*rnd(5.7,10.5),rnd(.16,.38),-rnd(0,SEG_LEN));
+  dummy.rotation.set(rnd(-.08,.08),rnd(0,6.28),rnd(-.25,.25));dummy.scale.set(rnd(.7,1.5),rnd(.25,.85),1);dummy.updateMatrix();grass.setMatrixAt(i,dummy.matrix);
+ }
+ for(let i=0;i<65;i++){
+  const side=Math.random()<.5?-1:1;dummy.position.set(side*rnd(7,16),rnd(.35,.7),-rnd(0,SEG_LEN));
+  dummy.rotation.set(rnd(0,3),rnd(0,6.28),rnd(0,3));dummy.scale.setScalar(rnd(.35,1.1));dummy.updateMatrix();bushes.setMatrixAt(i,dummy.matrix);
+ }
+ for(let i=0;i<24;i++){
+  const side=Math.random()<.5?-1:1;dummy.position.set(side*rnd(6,19),rnd(.25,.7),-rnd(0,SEG_LEN));
+  dummy.rotation.set(rnd(0,3),rnd(0,6.28),rnd(0,3));dummy.scale.set(rnd(.35,1.15),rnd(.25,.8),rnd(.35,1.1));dummy.updateMatrix();rocks.setMatrixAt(i,dummy.matrix);
+ }
+ for(const mesh of [trunks,branches,leaves,grass,bushes,rocks]){mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();s.content.add(mesh);}
+ leaves.instanceColor.needsUpdate=true;
+}
 function decorate(s){
   const b=BIOMES[s.biome].key;
   if(Math.random()<.48)addRoadSign(s,(Math.random()<.5?-1:1)*8.4,-rnd(7,20),Math.random()<.46?'vido':Math.random()<.5?'warning':'scenic');
@@ -521,20 +567,20 @@ function decorate(s){
    const animal=wildlife(kind,(Math.random()<.5?-1:1)*rnd(9,15),-rnd(5,22),rnd(.85,1.15));
    s.content.add(animal);s.animals.push(animal);s.dynamic.push(animal);
   }
-  for(let i=0;i<(b==='forest'?26:16);i++){
-    const side=Math.random()<.5?-1:1, z=-rnd(0,SEG_LEN);
-    let o;
+  if(b==='forest')addForestSet(s);
+  else{
+   for(let i=0;i<16;i++){
+    const side=Math.random()<.5?-1:1,z=-rnd(0,SEG_LEN);let o;
     if(b==='mountain'){
-      if(Math.random()<.42) o=mountain(side*rnd(18,45),z,rnd(.6,1.1));
-      else{ const x=side*rnd(8,34); o=Math.random()<.5?pine(x,z,rnd(.8,1.5)):rockDeco(x,z,rnd(.7,2.0)); }
-    }
-    else if(b==='forest'){ const x=side*rnd(9,42); o=Math.random()<.78?tree(x,z,rnd(1.05,2.05)):bush(x,z,rnd(.8,1.8)); }
-    else{ const x=side*rnd(36,58); o=Math.random()<.45?tree(x,z,rnd(.7,1.2)):(Math.random()<.5?reeds(x,z):rockDeco(x,z,rnd(.5,1.3))); }
-    s.content.add(o);if(b==='forest'&&o&&o.userData&&o.userData.canopy)s.foliage.push(o);
-  }
-  for(let i=0;i<(b==='forest'?32:14);i++){
-    const x=(Math.random()<.5?-1:1)*rnd(5.8,9.5), z=-rnd(0,SEG_LEN);
-    const undergrowth=b==='river'?reeds(x,z):(Math.random()<.68?grassPatch(x,z,rnd(.55,1.25)):bush(x,z,rnd(.3,.8)));s.content.add(undergrowth);if(b==='forest')s.foliage.push(undergrowth);
+     if(Math.random()<.42)o=mountain(side*rnd(18,45),z,rnd(.6,1.1));
+     else{const x=side*rnd(8,34);o=Math.random()<.5?pine(x,z,rnd(.8,1.5)):rockDeco(x,z,rnd(.7,2));}
+    }else{const x=side*rnd(36,58);o=Math.random()<.45?tree(x,z,rnd(.7,1.2)):(Math.random()<.5?reeds(x,z):rockDeco(x,z,rnd(.5,1.3)));}
+    s.content.add(o);
+   }
+   for(let i=0;i<14;i++){
+    const x=(Math.random()<.5?-1:1)*rnd(5.8,9.5),z=-rnd(0,SEG_LEN);
+    s.content.add(b==='river'?reeds(x,z):grassPatch(x,z,rnd(.55,1.25)));
+   }
   }
   if(b==='river'){
     for(const sx of [-5.4,5.4]){
