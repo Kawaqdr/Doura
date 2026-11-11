@@ -225,6 +225,7 @@ function playClip(gltf,root,names,loop=true){
 }
 const GLB={
  runner:'https://files.innerscene.com/library/run-sam-3d-person-animated-fa008c06/71777483056ccfecfed9/run-sam-3d-person-animated.glb',
+ runnerFallback:'https://gobkit.com/freebies/human003/Scout.glb',
  deer:'https://gobkit.com/freebies/animal006/Doe.glb',
  fox:'https://gobkit.com/freebies/animal006/Fox.glb'
 };
@@ -365,11 +366,14 @@ mk(new THREE.CylinderGeometry(.24,.29,.12,24),M.hat,0,2.25,0,1,1,1,body);
 mk(new THREE.SphereGeometry(1,20,12),M.hat,0,2.32,0,.19,.13,.19,body);
 
 // Load a rigged explorer model; retain the procedural runner if the network/model fails.
-loadModel(GLB.runner).then(gltf=>{
+function attachRunner(gltf){
  const model=cloneRig(gltf);fitModel(model,1.82);model.rotation.y=Math.PI;runnerModelRoot.add(model);
  runnerMixer=playClip(gltf,model,['Run','run','Jog','jog','Walk','walk','Idle','idle']);
  runnerModelRoot.userData.loaded=true;body.visible=false;
-}).catch(()=>{body.visible=true;});
+}
+loadModel(GLB.runner).then(attachRunner).catch(()=>loadModel(GLB.runnerFallback).then(gltf=>{
+ attachRunner(gltf);runnerModelRoot.userData.fallback=true;
+}).catch(()=>{body.visible=true;}));
 
 const legL=new THREE.Group(),legR=new THREE.Group(),armL=new THREE.Group(),armR=new THREE.Group();
 legL.position.set(-.2,.9,0); legR.position.set(.2,.9,0);
@@ -521,6 +525,11 @@ const forestLeafGeo=new THREE.SphereGeometry(1,16,12);
 const forestGrassGeo=new THREE.BoxGeometry(.055,1,.035);
 const forestBushGeo=new THREE.IcosahedronGeometry(1,1);
 const forestLeafMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+forestLeafMat.onBeforeCompile=shader=>{
+ shader.uniforms.uWindTime={value:0};forestLeafMat.userData.windShader=shader;
+ shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\\nuniform float uWindTime;');
+ shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\\ntransformed.x += sin(uWindTime + position.y*1.7 + instanceMatrix[3].x*.35)*.035*max(position.y,0.0);');
+};
 function addForestSet(s){
  const count=28,dummy=new THREE.Object3D(),trunks=new THREE.InstancedMesh(forestTrunkGeo,M.trunk,count);
  const branches=new THREE.InstancedMesh(forestBranchGeo,M.trunk,count*2);
@@ -788,6 +797,7 @@ document.getElementById('touch').addEventListener('contextmenu',e=>e.preventDefa
 const clock=new THREE.Clock();
 function update(dt){
   if(runnerMixer)runnerMixer.update(dt);
+  if(forestLeafMat.userData.windShader)forestLeafMat.userData.windShader.uniforms.uWindTime.value=performance.now()*.001;
   const playing=state==='play';
   if(playing){
     speed=Math.min(diff.max,speed+dt*diff.ramp);
