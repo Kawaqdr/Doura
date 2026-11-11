@@ -73,6 +73,54 @@ button.ghost{border:1px solid #ffffff22;background:#ffffff0d;box-shadow:none}
 @media(max-width:620px){#hud{max-width:68vw;gap:5px}#hud .panel,#right .panel{min-width:0;padding:7px 9px;font-size:11px}#ctrl{gap:5px}#ctrl button{width:36px;height:36px;font-size:15px}#weatherLabel{top:auto;bottom:94px;font-size:10px}#brandMark{top:52px;font-size:9px}#touch{bottom:12px}#touch button{width:58px;height:58px}.keys{font-size:11px}}
 @media(orientation:landscape) and (max-height:500px){.card{max-height:94vh;padding:16px 20px}.card h1{font-size:27px}.card p{margin:4px}.keys{margin:8px 0;gap:4px}.keys div{padding:5px 8px}#touch button{width:52px;height:52px}}
 
+
+/* ===== DOURA REAL-GAME PRESENTATION PASS ===== */
+:root{--ui-bg:rgba(7,16,27,.78);--ui-line:rgba(225,241,255,.18);--ui-gold:#ffd58a;--ui-cyan:#8ee7e0}
+.panel{background:linear-gradient(145deg,rgba(8,20,33,.88),rgba(12,29,42,.72));border:1px solid var(--ui-line);border-radius:12px;box-shadow:0 5px 18px #0005,inset 0 1px #ffffff12;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-size:12px;padding:8px 11px}
+#hud{top:max(12px,env(safe-area-inset-top));left:12px;max-width:46vw;display:grid;grid-template-columns:repeat(2,max-content);gap:6px}
+#hud .panel{white-space:nowrap;min-width:0}
+#right{top:max(12px,env(safe-area-inset-top));right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+#ctrl{gap:7px;margin:0}
+#ctrl button{width:40px;height:40px;font-size:16px;border-radius:12px;background:linear-gradient(145deg,#183246ed,#081521ed);border:1px solid #ffffff2c;box-shadow:0 5px 15px #0007,inset 0 1px #ffffff18}
+#right .panel{min-width:104px;text-align:center}
+#weatherLabel{top:auto;bottom:calc(100px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(8,20,31,.76);border:1px solid #ffffff24;box-shadow:0 5px 20px #0005;font-size:10px;letter-spacing:1.6px}
+#brandMark{top:18px;left:50%;font-size:9px;letter-spacing:5px;color:#f4fbffb8;text-shadow:0 2px 14px #000;white-space:nowrap}
+#touch{bottom:max(14px,env(safe-area-inset-bottom));padding:0 18px;align-items:flex-end;pointer-events:none}
+#touch .grp{gap:9px;pointer-events:auto}
+#touch button{width:54px;height:54px;border-radius:16px;font-size:19px;background:linear-gradient(145deg,rgba(18,43,59,.88),rgba(5,17,28,.88));border:1px solid #ffffff30;box-shadow:0 7px 20px #0007,inset 0 1px #ffffff18;backdrop-filter:blur(14px);touch-action:none}
+#touch button:active,#ctrl button:active{transform:scale(.94);filter:brightness(1.25)}
+#banner{top:30%;text-shadow:0 4px 24px #000}
+#banner h2{font-weight:900;letter-spacing:2px}
+#toast{bottom:calc(170px + env(safe-area-inset-bottom));font-weight:700}
+.screen{background:radial-gradient(ellipse at 50% 22%,rgba(25,66,82,.72),rgba(3,10,17,.94) 65%,#02070d);backdrop-filter:blur(10px)}
+.card{border-radius:22px;max-width:520px;background:linear-gradient(150deg,rgba(11,29,43,.97),rgba(4,12,21,.98));border:1px solid #dff6ff2b;box-shadow:0 30px 100px #000b,inset 0 1px #ffffff18}
+.card h1{letter-spacing:2px}
+button{border-radius:13px;letter-spacing:.2px}
+@media(max-width:620px){
+ #hud{max-width:48vw;grid-template-columns:repeat(2,max-content);gap:5px}
+ #hud .panel{padding:7px 9px;font-size:10px}
+ #right{gap:6px}
+ #ctrl{gap:5px}
+ #ctrl button{width:35px;height:35px;border-radius:11px;font-size:14px}
+ #right .panel{min-width:0;padding:7px 9px;font-size:10px}
+ #brandMark{top:64px;font-size:8px;letter-spacing:3px}
+ #weatherLabel{bottom:calc(86px + env(safe-area-inset-bottom));font-size:9px;padding:6px 10px}
+ #touch{padding:0 13px;bottom:max(12px,env(safe-area-inset-bottom))}
+ #touch button{width:48px;height:48px;border-radius:14px;font-size:17px}
+ #toast{bottom:calc(145px + env(safe-area-inset-bottom))}
+}
+@media(max-width:380px){
+ #brandMark{display:none}
+ #hud{max-width:47vw}
+ #touch button{width:44px;height:44px}
+}
+@media(orientation:landscape) and (max-height:500px){
+ #hud,#right{top:8px}
+ #brandMark{top:8px}
+ #touch button{width:46px;height:46px}
+ #weatherLabel{bottom:70px}
+}
+
 </style>
 </head>
 <body>
@@ -164,21 +212,21 @@ let diff=DIFFS.normal;
 
 /* ================= renderer / scene ================= */
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.65));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputEncoding=THREE.sRGBEncoding;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene=new THREE.Scene();
-scene.fog=new THREE.Fog(0xcfe3f5,45,185);
-const camera=new THREE.PerspectiveCamera(64,innerWidth/innerHeight,.1,1200);
+scene.fog=new THREE.Fog(0x9fb4bf,58,245);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,1200);
 camera.position.set(0,5.4,PLAYER_Z+10);
 
-const hemi=new THREE.HemisphereLight(0xdff0ff,0x4a5a3a,.95); scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xffe4b5,1.45);sun.position.set(-40,70,-30);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
-const fillLight=new THREE.DirectionalLight(0x8bcaff,.42);fillLight.position.set(28,24,18);scene.add(fillLight);
+const hemi=new THREE.HemisphereLight(0xd8e8f3,0x293b2c,1.05); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffedcf,2.0);sun.position.set(-40,70,-30);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-38;sun.shadow.camera.right=38;sun.shadow.camera.top=38;sun.shadow.camera.bottom=-38;sun.shadow.bias=-0.00018;scene.add(sun);
+const fillLight=new THREE.DirectionalLight(0x9bc9df,.28);fillLight.position.set(28,24,18);scene.add(fillLight);
 
 /* sky dome */
 const skyU={top:{value:new THREE.Color(0x2f7fd0)},bot:{value:new THREE.Color(0xdcefff)},off:{value:12},ex:{value:.75}};
@@ -218,33 +266,33 @@ setBiomeTarget(0);
 const G={
  box:new THREE.BoxGeometry(1,1,1),
  plane:new THREE.PlaneGeometry(1,1),
- cone:new THREE.ConeGeometry(1,1,7),
- cyl:new THREE.CylinderGeometry(1,1,1,8),
- rock:new THREE.IcosahedronGeometry(1,0),
+ cone:new THREE.ConeGeometry(1,1,14),
+ cyl:new THREE.CylinderGeometry(1,1,1,16),
+ rock:new THREE.IcosahedronGeometry(1,2),
  gem:new THREE.OctahedronGeometry(.42,0),
- sphere:new THREE.SphereGeometry(1,10,8)
+ sphere:new THREE.SphereGeometry(1,24,18)
 };
 const M={
- ground:new THREE.MeshLambertMaterial({color:0x8b8f7a}),
- path:new THREE.MeshPhongMaterial({color:0x78644e,shininess:24,specular:0x263d4a}),
+ ground:new THREE.MeshStandardMaterial({color:0x8b8f7a,roughness:1}),
+ path:new THREE.MeshStandardMaterial({color:0x78644e,roughness:.92}),
  bed:new THREE.MeshLambertMaterial({color:0x14506e}),
  water:new THREE.MeshPhongMaterial({color:0x2b8fc4,transparent:true,opacity:.8,shininess:110,specular:0x9fe8ff}),
- trunk:new THREE.MeshLambertMaterial({color:0x5b3d24,flatShading:true}),
- leafA:new THREE.MeshLambertMaterial({color:0x2f7a35,flatShading:true}),
- leafB:new THREE.MeshLambertMaterial({color:0x46a04a,flatShading:true}),
- pine:new THREE.MeshLambertMaterial({color:0x24603a,flatShading:true}),
- rock:new THREE.MeshLambertMaterial({color:0x8d8d8d,flatShading:true}),
- snow:new THREE.MeshLambertMaterial({color:0xf2f7ff,flatShading:true}),
+ trunk:new THREE.MeshStandardMaterial({color:0x55402d,roughness:1}),
+ leafA:new THREE.MeshStandardMaterial({color:0x28583a,roughness:1}),
+ leafB:new THREE.MeshStandardMaterial({color:0x3d7544,roughness:1}),
+ pine:new THREE.MeshStandardMaterial({color:0x244d37,roughness:1}),
+ rock:new THREE.MeshStandardMaterial({color:0x777d7b,roughness:.96}),
+ snow:new THREE.MeshStandardMaterial({color:0xe5e9e8,roughness:.9}),
  wood:new THREE.MeshLambertMaterial({color:0x8a5a30,flatShading:true}),
  darkwood:new THREE.MeshLambertMaterial({color:0x5d3b1e,flatShading:true}),
  reed:new THREE.MeshLambertMaterial({color:0x7fae4a,flatShading:true}),
  gem:new THREE.MeshPhongMaterial({color:0x66e6ff,emissive:0x0d6b80,shininess:120,specular:0xffffff}),
  shadow:new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.28}),
- skin:new THREE.MeshLambertMaterial({color:0xe8b48a}),
- shirt:new THREE.MeshLambertMaterial({color:0xff7043}),
- pants:new THREE.MeshLambertMaterial({color:0x2f4a7a}),
- pack:new THREE.MeshLambertMaterial({color:0x3f7d4f}),
- hat:new THREE.MeshLambertMaterial({color:0xc9a227})
+ skin:new THREE.MeshStandardMaterial({color:0xb97850,roughness:.82}),
+ shirt:new THREE.MeshStandardMaterial({color:0x315b4b,roughness:.88}),
+ pants:new THREE.MeshStandardMaterial({color:0x263342,roughness:.9}),
+ pack:new THREE.MeshStandardMaterial({color:0x8c5b32,roughness:.9}),
+ hat:new THREE.MeshStandardMaterial({color:0x9b7840,roughness:.8})
 };
 function mk(g,m,x,y,z,sx,sy,sz,parent){
   const o=new THREE.Mesh(g,m); o.position.set(x,y,z); o.scale.set(sx,sy,sz); if(parent)parent.add(o); return o;
@@ -253,17 +301,17 @@ function mk(g,m,x,y,z,sx,sy,sz,parent){
 /* ================= player ================= */
 const player=new THREE.Group(); player.position.set(0,0,PLAYER_Z); scene.add(player);
 const body=new THREE.Group(); player.add(body);
-mk(G.box,M.shirt,0,1.28,0,.72,.85,.42,body);
-mk(G.box,M.pack,0,1.3,.32,.5,.6,.26,body);
-mk(G.sphere,M.skin,0,1.95,0,.29,.31,.29,body);
-mk(G.cyl,M.hat,0,2.16,0,.42,.08,.42,body);
-mk(G.cyl,M.hat,0,2.24,0,.26,.16,.26,body);
+mk(new THREE.SphereGeometry(1,24,18),M.shirt,0,1.34,0,.39,.59,.25,body);
+mk(new THREE.SphereGeometry(1,20,16),M.pack,0,1.34,.24,.29,.42,.16,body);
+mk(new THREE.SphereGeometry(1,24,18),M.skin,0,2.02,0,.235,.27,.22,body);
+mk(new THREE.CylinderGeometry(.24,.29,.12,24),M.hat,0,2.25,0,1,1,1,body);
+mk(new THREE.SphereGeometry(1,20,12),M.hat,0,2.32,0,.19,.13,.19,body);
 const legL=new THREE.Group(),legR=new THREE.Group(),armL=new THREE.Group(),armR=new THREE.Group();
 legL.position.set(-.2,.9,0); legR.position.set(.2,.9,0);
 armL.position.set(-.45,1.62,0); armR.position.set(.45,1.62,0);
 body.add(legL,legR,armL,armR);
-mk(G.box,M.pants,0,-.45,0,.24,.9,.26,legL); mk(G.box,M.pants,0,-.45,0,.24,.9,.26,legR);
-mk(G.box,M.skin,0,-.35,0,.19,.72,.2,armL); mk(G.box,M.skin,0,-.35,0,.19,.72,.2,armR);
+mk(new THREE.CapsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legL); mk(new THREE.CapsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legR);
+mk(new THREE.CapsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armL); mk(new THREE.CapsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armR);
 const blob=mk(G.plane,M.shadow,0,.03,PLAYER_Z,1.6,1.6,1,scene); blob.rotation.x=-Math.PI/2;
 
 /* ================= world segments ================= */
@@ -294,16 +342,27 @@ for(let i=0;i<NSEG;i++) segs.push(makeSeg());
 
 /* --- decorations --- */
 function tree(x,z,scale){
-  const t=new THREE.Group(); t.position.set(x,0,z); t.scale.setScalar(scale);
-  mk(G.cyl,M.trunk,0,1.4,0,.28,2.8,.28,t);
-  mk(G.cone,M.leafA,0,3.4,0,1.7,2.6,1.7,t);
-  mk(G.cone,M.leafB,0,4.6,0,1.25,2.1,1.25,t);
+  const t=new THREE.Group();t.position.set(x,0,z);t.scale.setScalar(scale);
+  const bark=M.trunk;
+  const trunk=mk(G.cyl,bark,0,2.0,0,.24,4,.24,t);trunk.rotation.z=rnd(-.035,.035);
+  for(let i=0;i<4;i++){
+    const b=mk(G.cyl,bark,rnd(-.45,.45),2.65+i*.28,0,.095,1.65,.095,t);
+    b.rotation.z=(i%2?-.55:.55);
+  }
+  const crownMat=new THREE.MeshStandardMaterial({color:pick([0x315f3c,0x3b7044,0x426f3d,0x527b45]),roughness:1});
+  for(let i=0;i<9;i++){
+    const a=i/9*Math.PI*2,r=rnd(.45,1.25);
+    const c=mk(new THREE.SphereGeometry(1,16,12),crownMat,Math.cos(a)*r,3.65+rnd(-.15,.65),Math.sin(a)*r,.95,rnd(.85,1.2),.9,t);
+  }
   return t;
 }
 function pine(x,z,s){
-  const t=new THREE.Group(); t.position.set(x,0,z); t.scale.setScalar(s);
-  mk(G.cyl,M.trunk,0,.9,0,.2,1.8,.2,t);
-  for(let i=0;i<3;i++) mk(G.cone,M.pine,0,1.9+i*1.1,0,1.5-i*.38,1.9,1.5-i*.38,t);
+  const t=new THREE.Group();t.position.set(x,0,z);t.scale.setScalar(s);
+  mk(G.cyl,M.trunk,0,2.2,0,.19,4.4,.19,t);
+  for(let i=0;i<4;i++){
+    const layer=mk(new THREE.ConeGeometry(1,2.7,18),M.pine,0,1.7+i*.78,0,1.85-i*.32,1.2,1.85-i*.32,t);
+    layer.rotation.y=rnd(0,Math.PI);
+  }
   return t;
 }
 function mountain(x,z,s){
