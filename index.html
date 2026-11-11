@@ -370,9 +370,11 @@ function addRoadSign(s,x,z,mode){
  }
  const tex=new THREE.CanvasTexture(cv);tex.encoding=THREE.sRGBEncoding;
  const mat=new THREE.MeshStandardMaterial({map:tex,roughness:.68,metalness:.12});
- const board=mk(new THREE.PlaneGeometry(4.6,2.15),mat,x,3.15,z,1,1,1,s.content);board.castShadow=true;
- mk(G.box,M.darkwood,x,1.55,z,.16,3.1,.16,s.content);
- mk(G.box,M.wood,x,2.02,z,.2,.16,.2,s.content);
+ const sign=new THREE.Group();
+ const board=mk(new THREE.PlaneGeometry(4.6,2.15),mat,x,3.15,z,1,1,1,sign);board.castShadow=true;
+ mk(G.box,M.darkwood,x,1.55,z,.16,3.1,.16,sign);
+ mk(G.box,M.wood,x,2.02,z,.2,.16,.2,sign);
+ s.content.add(sign);s.dynamic.push(sign);
 }
 
 function decorate(s){
@@ -381,7 +383,7 @@ function decorate(s){
   if(Math.random()<.5){
    const kind=b==='forest'?(Math.random()<.65?'deer':'fox'):b==='mountain'?(Math.random()<.55?'fox':'deer'):'deer';
    const animal=wildlife(kind,(Math.random()<.5?-1:1)*rnd(9,15),-rnd(5,22),rnd(.85,1.15));
-   s.content.add(animal);s.animals.push(animal);
+   s.content.add(animal);s.animals.push(animal);s.dynamic.push(animal);
   }
   for(let i=0;i<12;i++){
     const side=Math.random()<.5?-1:1, z=-rnd(0,SEG_LEN);
@@ -533,7 +535,7 @@ function toast(t){ const e=$('toast'); e.textContent=t; e.style.opacity=1;
 function start(){
   startAmbience();if(actx&&actx.state==='suspended')actx.resume();
   state='play'; lane=1; px=0; py=0; vy=0; sliding=0; speed=diff.start;
-  gemCount=0; lives=3; invuln=0; nextBiome=420;
+  gemCount=0; lives=3; invuln=0; nextBiome=420;nextWeatherAt=190;setWeather('clear');
   resetWorld();
   $('startScreen').classList.add('hide'); $('overScreen').classList.add('hide');
   $('cPause').textContent='⏸';
