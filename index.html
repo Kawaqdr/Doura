@@ -220,7 +220,7 @@ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 const scene=new THREE.Scene();
-scene.fog=new THREE.Fog(0x9fb4bf,58,245);
+scene.fog=new THREE.Fog(0x8da4a9,72,285);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,1200);
 camera.position.set(0,5.4,PLAYER_Z+10);
 
@@ -294,6 +294,19 @@ const M={
  pack:new THREE.MeshStandardMaterial({color:0x8c5b32,roughness:.9}),
  hat:new THREE.MeshStandardMaterial({color:0x9b7840,roughness:.8})
 };
+/* Procedural ground and trail surfaces: subtle dirt grain, gravel and worn tire tracks. */
+function makeSurfaceTexture(base,grain,streak){
+ const c=document.createElement('canvas');c.width=512;c.height=512;
+ const x=c.getContext('2d');x.fillStyle=base;x.fillRect(0,0,512,512);
+ for(let i=0;i<15000;i++){
+  const v=Math.random();x.fillStyle=v>.5?'rgba(255,255,255,.075)':'rgba(0,0,0,.09)';
+  const r=Math.random()*1.7+.25;x.beginPath();x.arc(Math.random()*512,Math.random()*512,r,0,Math.PI*2);x.fill();
+ }
+ for(let i=0;i<55;i++){x.strokeStyle=streak;x.lineWidth=Math.random()*2+.35;x.beginPath();const px=Math.random()*512;x.moveTo(px,0);x.lineTo(px+(Math.random()-.5)*28,512);x.stroke();}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;t.encoding=THREE.sRGBEncoding;return t;
+}
+M.ground.map=makeSurfaceTexture('#687365',0,'rgba(35,43,34,.12)');M.ground.map.repeat.set(5,2);
+M.path.map=makeSurfaceTexture('#76634f',0,'rgba(40,30,20,.18)');M.path.map.repeat.set(2,1);
 function mk(g,m,x,y,z,sx,sy,sz,parent){
   const o=new THREE.Mesh(g,m); o.position.set(x,y,z); o.scale.set(sx,sy,sz); if(parent)parent.add(o); return o;
 }
@@ -349,10 +362,10 @@ function tree(x,z,scale){
     const b=mk(G.cyl,bark,rnd(-.45,.45),2.65+i*.28,0,.095,1.65,.095,t);
     b.rotation.z=(i%2?-.55:.55);
   }
-  const crownMat=new THREE.MeshStandardMaterial({color:pick([0x315f3c,0x3b7044,0x426f3d,0x527b45]),roughness:1});
+  const crownMat=M.leafA;
   for(let i=0;i<9;i++){
     const a=i/9*Math.PI*2,r=rnd(.45,1.25);
-    const c=mk(new THREE.SphereGeometry(1,16,12),crownMat,Math.cos(a)*r,3.65+rnd(-.15,.65),Math.sin(a)*r,.95,rnd(.85,1.2),.9,t);
+    const c=mk(G.sphere,crownMat,Math.cos(a)*r,3.65+rnd(-.15,.65),Math.sin(a)*r,.95,rnd(.85,1.2),.9,t);
   }
   return t;
 }
@@ -545,7 +558,7 @@ function setWeather(mode){
  sun.intensity=mode==='rain'?.62:mode==='snow'?.9:1.45;hemi.intensity=mode==='rain'?.7:.95;rainFx.visible=mode==='rain';snowFx.visible=mode==='snow';
  $('weatherLabel').textContent=mode==='rain'?'🌧  RAINFALL':mode==='snow'?'❄  SNOWFALL':'☀  CLEAR WEATHER';
  if(mode==='rain'){toast('বৃষ্টি শুরু হয়েছে — সাবধানে!');scene.fog.near=24;scene.fog.far=118;}
- else if(mode==='snow'){scene.fog.near=30;scene.fog.far=145;}else{scene.fog.near=45;scene.fog.far=185;}
+ else if(mode==='snow'){scene.fog.near=30;scene.fog.far=145;}else{scene.fog.near=72;scene.fog.far=285;}
  if(mode==='snow')toast('তুষারপাত — পথ পিচ্ছিল!');
 }
 function seedWeather(){
