@@ -624,9 +624,16 @@ function decorate(s){
 function addObs(s,lane,z,type){
   const x=LANE_X[lane], g=new THREE.Group(); g.position.set(x,0,z); s.content.add(g);
   const o={lane,z,type,y0:0,y1:2,w:1.25,d:1.1};
-  if(type==='rock'){\n    const r1=mk(G.rock,M.rock,-.28,.58,0,.82,.72,.78,g);r1.rotation.set(rnd(0,.4),rnd(0,3),rnd(0,.3));\n    const r2=mk(G.rock,M.rock,.42,.42,-.08,.62,.52,.65,g);r2.rotation.set(rnd(0,.4),rnd(0,3),rnd(0,.3));\n    const r3=mk(G.rock,M.rock,.05,.9,.1,.55,.48,.56,g);r3.rotation.set(rnd(0,.4),rnd(0,3),rnd(0,.3));o.y1=1.65;o.w=1.25; }
-  else if(type==='log'){ const l=mk(G.cyl,M.trunk,0,.58,0,.55,2.8,.55,g);l.rotation.z=Math.PI/2;\n    mk(G.cyl,M.darkwood,-1.39,.58,0,.555,.055,.555,g).rotation.z=Math.PI/2;mk(G.cyl,M.darkwood,1.39,.58,0,.555,.055,.555,g).rotation.z=Math.PI/2;\n    mk(G.box,M.leafA,-.15,1.08,.22,.7,.12,.32,g).rotation.z=.12;o.y1=1.25;o.w=1.45; }
-  else if(type==='wall'){\n    for(let i=0;i<6;i++){const x=(i%3-1)*.78,y=.45+Math.floor(i/3)*.82,z=(Math.random()-.5)*.5;const r=mk(G.rock,M.rock,x,y,z,rnd(.48,.7),rnd(.45,.68),rnd(.48,.7),g);r.rotation.set(rnd(0,.5),rnd(0,3),rnd(0,.5));}\n    o.y1=2.15;o.w=1.45; }
+  if(type==='rock'){
+    const r1=mk(G.rock,M.rock,-.28,.58,0,.82,.72,.78,g);r1.rotation.set(rnd(0,.4),rnd(0,3),rnd(0,.3));
+    const r2=mk(G.rock,M.rock,.42,.42,-.08,.62,.52,.65,g);r2.rotation.set(rnd(0,.4),rnd(0,3),rnd(0,.3));
+    const r3=mk(G.rock,M.rock,.05,.9,.1,.55,.48,.56,g);r3.rotation.set(rnd(0,.4),rnd(0,3),rnd(0,.3));o.y1=1.65;o.w=1.25; }
+  else if(type==='log'){ const l=mk(G.cyl,M.trunk,0,.58,0,.55,2.8,.55,g);l.rotation.z=Math.PI/2;
+    mk(G.cyl,M.darkwood,-1.39,.58,0,.555,.055,.555,g).rotation.z=Math.PI/2;mk(G.cyl,M.darkwood,1.39,.58,0,.555,.055,.555,g).rotation.z=Math.PI/2;
+    mk(G.box,M.leafA,-.15,1.08,.22,.7,.12,.32,g).rotation.z=.12;o.y1=1.25;o.w=1.45; }
+  else if(type==='wall'){
+    for(let i=0;i<6;i++){const x=(i%3-1)*.78,y=.45+Math.floor(i/3)*.82,z=(Math.random()-.5)*.5;const r=mk(G.rock,M.rock,x,y,z,rnd(.48,.7),rnd(.45,.68),rnd(.48,.7),g);r.rotation.set(rnd(0,.5),rnd(0,3),rnd(0,.5));}
+    o.y1=2.15;o.w=1.45; }
   else if(type==='bar'){
     mk(G.box,M.wood,-1.35,1.5,0,.2,3,.2,g); mk(G.box,M.wood,1.35,1.5,0,.2,3,.2,g);
     mk(G.box,M.darkwood,0,1.75,0,2.9,.5,.5,g);
