@@ -196,6 +196,7 @@ button{border-radius:13px;letter-spacing:.2px}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://unpkg.com/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
+<script src="./assets.js"></script>
 <script>if(!window.THREE){document.write('<scr'+'ipt src="https://unpkg.com/three@0.128.0/build/three.min.js"><\/scr>');}</script>
 <script>
 (function(){
@@ -231,12 +232,7 @@ function playClip(gltf,root,names,loop=true){
  const action=mixer.clipAction(clip);action.setLoop(loop?THREE.LoopRepeat:THREE.LoopOnce,loop?Infinity:1);action.clampWhenFinished=!loop;action.play();
  return mixer;
 }
-const GLB={
- runner:'https://files.innerscene.com/library/locomotion-collection-sam-3d-person-animated-dc23800f/735aec6a564c1def48e8/locomotion-collection-sam-3d-person-animated.glb',
- runnerFallback:'https://gobkit.com/freebies/human003/Scout.glb',
- deer:'https://gobkit.com/freebies/animal006/Doe.glb',
- fox:'https://gobkit.com/freebies/animal006/Fox.glb'
-};
+const {GLB,capsuleGeometry}=window.DouraAssets;
 
 /* ================= helpers ================= */
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -399,8 +395,8 @@ const legL=new THREE.Group(),legR=new THREE.Group(),armL=new THREE.Group(),armR=
 legL.position.set(-.2,.9,0); legR.position.set(.2,.9,0);
 armL.position.set(-.45,1.62,0); armR.position.set(.45,1.62,0);
 body.add(legL,legR,armL,armR);
-mk(new THREE.CapsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legL); mk(new THREE.CapsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legR);
-mk(new THREE.CapsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armL); mk(new THREE.CapsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armR);
+mk(capsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legL); mk(new THREE.CapsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legR);
+mk(capsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armL); mk(new THREE.CapsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armR);
 const blob=mk(G.plane,M.shadow,0,.03,PLAYER_Z,1.6,1.6,1,scene); blob.rotation.x=-Math.PI/2;
 
 /* ================= world segments ================= */
