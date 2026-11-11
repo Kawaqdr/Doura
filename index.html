@@ -203,7 +203,8 @@ function loadModel(url){
  return modelCache.get(url);
 }
 function cloneRig(gltf){
- return THREE.SkeletonUtils?THREE.SkeletonUtils.clone(gltf.scene):gltf.scene.clone(true);
+ const clone=THREE.SkeletonUtils?THREE.SkeletonUtils.clone(gltf.scene):gltf.scene.clone(true);
+ clone.traverse(o=>{o.userData.sharedGLTF=true;});return clone;
 }
 function fitModel(root,height){
  const box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3());
@@ -376,6 +377,7 @@ const blob=mk(G.plane,M.shadow,0,.03,PLAYER_Z,1.6,1.6,1,scene); blob.rotation.x=
 const segs=[];
 function clearSeg(s){
   for(const root of s.dynamic)root.traverse(o=>{
+    if(o.userData.sharedGLTF)return;
     if(o.geometry)o.geometry.dispose();
     if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.map)m.map.dispose();m.dispose();}}
   });
