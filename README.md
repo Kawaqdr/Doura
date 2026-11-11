@@ -1,32 +1,41 @@
-# Doura — Explorer Run 3D
+# Doura — Wild Run
 
-Doura is a browser-playable 3D endless runner built with Three.js.
+A browser-based 3D wilderness endless runner built with Three.js.
 
-## Play
+## Features
 
-After GitHub Pages is enabled, open:
-
-**https://kawaqdr.github.io/Doura/**
+- Three-lane endless-runner gameplay with jump, slide, lane switching, lives, crystals, score and difficulty selection.
+- Mountain, forest and river biomes with a cinematic color grade and atmospheric fog.
+- Dynamic rain and snowfall particle systems, with changing light, fog and wet trail surfaces.
+- Procedural deer and fox wildlife encounters.
+- 3D roadside trail signs, wildlife warnings, scenic notices and Vido Player promotional billboards.
+- Synthesized ambient wind, rain ambience and gameplay sound effects.
+- Responsive keyboard, touch and swipe controls; automatic pause when the page is hidden.
+- Best score saved locally in the browser.
 
 ## Controls
 
 | Action | Keyboard | Touch |
 |---|---|---|
-| Move left / right | ← / → or A / D | Left / right |
-| Jump | ↑, W, or Space | Jump |
-| Slide | ↓ or S | Slide |
+| Move left / right | ← / → or A / D | Left / right buttons or swipe |
+| Jump | ↑, W, or Space | Jump button or swipe up |
+| Slide | ↓ or S | Slide button or swipe down |
 | Pause / resume | P or Esc | Pause button |
-| Toggle sound | M | Speaker button |
+| Sound | M | Speaker button |
 
-Collect crystals, avoid obstacles, and travel through the mountain, forest, and river biomes. Choose Easy, Normal, or Hard before starting.
+## Play
 
-## Deploy with GitHub Pages
+Once the GitHub Pages deployment succeeds:
 
-The included GitHub Actions workflow publishes the repository root whenever a commit is pushed to `main`.
+https://kawaqdr.github.io/Doura/
 
-1. Open **Settings → Pages** in this repository.
-2. Set the build and deployment source to **GitHub Actions**.
-3. Merge the upgrade branch into `main` (or push the changes to `main`).
-4. Check the **Actions** tab for the deployment. The game will be available at the Play URL above after the workflow succeeds.
+## GitHub Pages deployment
 
-The game uses Three.js from a public CDN, so the first load requires an internet connection.
+The GitHub Actions workflow at `.github/workflows/pages.yml` publishes the repository root on every push to `main`.
+
+1. In **Settings → Pages**, choose **GitHub Actions** as the deployment source.
+2. Merge the upgrade pull request into `main`.
+3. Open the **Actions** tab and wait for **Deploy Doura to GitHub Pages** to complete successfully.
+4. Visit the Play URL above.
+
+The game currently loads Three.js from a public CDN. The first load therefore requires an internet connection. The Vido Player billboard communicates the app's privacy/offline positioning; it does not imply that this browser game itself is offline.
