@@ -395,8 +395,8 @@ const legL=new THREE.Group(),legR=new THREE.Group(),armL=new THREE.Group(),armR=
 legL.position.set(-.2,.9,0); legR.position.set(.2,.9,0);
 armL.position.set(-.45,1.62,0); armR.position.set(.45,1.62,0);
 body.add(legL,legR,armL,armR);
-mk(capsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legL); mk(new THREE.CapsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legR);
-mk(capsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armL); mk(new THREE.CapsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armR);
+mk(capsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legL); mk(capsuleGeometry(.105,.58,5,10),M.pants,0,-.43,0,1,1,1,legR);
+mk(capsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armL); mk(capsuleGeometry(.09,.48,5,10),M.skin,0,-.34,0,1,1,1,armR);
 const blob=mk(G.plane,M.shadow,0,.03,PLAYER_Z,1.6,1.6,1,scene); blob.rotation.x=-Math.PI/2;
 
 /* ================= world segments ================= */
