@@ -1,0 +1,61 @@
+name: Download character model
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/download-character.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: download-character-model
+  cancel-in-progress: false
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Download Innerscene Sam character
+        env:
+          MODEL_URL: https://files.innerscene.com/library/locomotion-collection-sam-3d-person-animated-dc23800f/735aec6a564c1def48e8/locomotion-collection-sam-3d-person-animated.glb
+        run: |
+          mkdir -p assets/models
+          curl --fail --location --retry 4 --retry-delay 3 \
+            --user-agent "Mozilla/5.0 (compatible; DouraAssetBot/1.0)" \
+            "$MODEL_URL" -o assets/models/sam-runner.glb
+          test "$(stat -c%s assets/models/sam-runner.glb)" -gt 1000000
+          MAGIC="$(head -c 4 assets/models/sam-runner.glb)"
+          test "$MAGIC" = "glTF"
+          echo "Downloaded $(du -h assets/models/sam-runner.glb | cut -f1)"
+
+      - name: Commit model into repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/models/sam-runner.glb
+          if git diff --cached --quiet; then
+            echo "Model is already up to date."
+          else
+            git commit -m "Add local Sam runner character model"
+            git push
+          fi
+
+      - name: Trigger GitHub Pages deployment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl --fail-with-body --request POST \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/pages.yml/dispatches \
+            --data '{"ref":"main"}'
