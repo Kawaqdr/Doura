@@ -268,7 +268,14 @@ const blob=mk(G.plane,M.shadow,0,.03,PLAYER_Z,1.6,1.6,1,scene); blob.rotation.x=
 
 /* ================= world segments ================= */
 const segs=[];
-function clearSeg(s){ while(s.content.children.length) s.content.remove(s.content.children[0]); s.obs.length=0; s.gems.length=0; }
+function clearSeg(s){
+  for(const root of s.dynamic)root.traverse(o=>{
+    if(o.geometry)o.geometry.dispose();
+    if(o.material){const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){if(m.map)m.map.dispose();m.dispose();}}
+  });
+  while(s.content.children.length)s.content.remove(s.content.children[0]);
+  s.obs.length=0;s.gems.length=0;s.animals.length=0;s.dynamic.length=0;
+}
 
 function makeSeg(){
   const g=new THREE.Group();
@@ -281,7 +288,7 @@ function makeSeg(){
   }
   const content=new THREE.Group(); g.add(content);
   scene.add(g);
-  return {g,content,waters,bed,path,obs:[],gems:[],biome:0};
+  return {g,content,waters,bed,path,obs:[],gems:[],animals:[],dynamic:[],biome:0};
 }
 for(let i=0;i<NSEG;i++) segs.push(makeSeg());
 
