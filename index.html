@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>Explorer Run 3D — পাহাড় · জঙ্গল · নদী</title>
+<title>Doura — Explorer Run 3D</title>
+<meta name="description" content="Doura is a 3D endless runner. Dodge obstacles, collect crystals, and explore mountains, forests, and rivers.">
+<meta name="theme-color" content="#0a0f16">
+<meta name="color-scheme" content="dark">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden;background:#0a0f16;color:#eaf2ff;
@@ -135,7 +138,7 @@ let diff=DIFFS.normal;
 
 /* ================= renderer / scene ================= */
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
 renderer.setSize(innerWidth,innerHeight);
 renderer.outputEncoding=THREE.sRGBEncoding;
 document.body.appendChild(renderer.domElement);
@@ -430,9 +433,9 @@ addEventListener('keydown',e=>{
   else if(k==='m')setSound(!soundOn);
   else if(k==='enter'&&(state==='menu'||state==='over'))start();
 });
-function bind(id,fn){const el=$(id);['touchstart','mousedown'].forEach(ev=>el.addEventListener(ev,e=>{e.preventDefault();fn();},{passive:false}));}
+function bind(id,fn){const el=$(id);el.style.touchAction='none';el.addEventListener('pointerdown',e=>{e.preventDefault();if(e.button!==undefined&&e.button!==0)return;fn();});}
 bind('tL',()=>move(-1)); bind('tR',()=>move(1)); bind('tJ',jump); bind('tS',slide);
-if('ontouchstart' in window) $('touch').style.display='flex';
+if(window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) $('touch').style.display='flex';
 let tsx=0,tsy=0;
 addEventListener('touchstart',e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY;},{passive:true});
 addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tsx,dy=e.changedTouches[0].clientY-tsy;
@@ -449,7 +452,11 @@ document.querySelectorAll('.diff').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.diff').forEach(x=>x.classList.toggle('sel',x===b));
   beep(600,.06,'sine',.05);
 });
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));});
+// Pause safely when the player switches tabs or locks the device.
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='play')togglePause();});
+// Prevent accidental browser gestures while using the on-screen controls.
+document.getElementById('touch').addEventListener('contextmenu',e=>e.preventDefault());
 
 /* ================= update ================= */
 const clock=new THREE.Clock();
